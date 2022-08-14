@@ -33,7 +33,7 @@ function Restaurant(props) {
   let [menuItem, setMenuItem] = useState([]);
   let onChangeHandler = () => {};
   let makePayment = () => {
-    let URL = "http://localhost:4000/api/payment";
+    let URL = "https://polar-oasis-08997.herokuapp.com/api/payment";
 
     let sendData = {
       amount: subTotal,
@@ -45,7 +45,9 @@ function Restaurant(props) {
   };
 
   let getRestaurantDetails = async () => {
-    let URL = "http://localhost:4000/api/get-restaurant-by-id/" + params.id;
+    let URL =
+      "https://polar-oasis-08997.herokuapp.com/api/get-restaurant-by-id/" +
+      params.id;
     try {
       let response = await axios.get(URL);
       let data = response.data;
@@ -60,7 +62,9 @@ function Restaurant(props) {
     }
   };
   let getMenuList = async () => {
-    let URL = "http://localhost:4000/api/get-menu-item?rid=" + params.id;
+    let URL =
+      "https://polar-oasis-08997.herokuapp.com/api/get-menu-item?rid=" +
+      params.id;
     try {
       let response = await axios.get(URL);
       let data = response.data;
