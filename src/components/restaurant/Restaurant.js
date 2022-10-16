@@ -32,22 +32,77 @@ function Restaurant(props) {
   let [subTotal, setSubTotal] = useState(0);
   let [menuItem, setMenuItem] = useState([]);
   let onChangeHandler = () => {};
-  let makePayment = () => {
-    let URL = "https://polar-oasis-08997.herokuapp.com/api/payment";
+
+  let loadScript = async () => {
+    const scriptElement = document.createElement("script");
+    scriptElement.src = "https://checkout.razorpay.com/v1/checkout.js";
+    scriptElement.onload = () => {
+      return true;
+    };
+    scriptElement.onerror = () => {
+      return false;
+    };
+    document.body.appendChild(scriptElement);
+  };
+
+  let makePayment = async () => {
+    let isLoaded = await loadScript();
+    if (isLoaded === false) {
+      alert("Unable load payment sdk");
+      return false;
+    }
+
+    let URL = "http://localhost:4000/api/payment";
 
     let sendData = {
       amount: subTotal,
       email: emailRef.current.value,
     };
-    axios.post(URL, sendData).then((response) => {
-      console.log(response);
-    });
+
+    let { data } = await axios.post(URL, sendData);
+    let { order } = data;
+
+    var options = {
+      key: "rzp_test_r8jBdUfOpWmR0N",
+      amount: order.amount,
+      currency: "INR",
+      name: "Zomato Clone Payment",
+      description: "This is a food payment",
+      image:
+        "https://upload.wikimedia.org/wikipedia/commons/2/2d/Zomato_Logo.jpg",
+      order_id: order.id,
+      handler: async function (response) {
+        let URL = "http://localhost:4000/api/callback";
+        let sendData = {
+          payment_id: response.razorpay_payment_id,
+          order_id: response.razorpay_order_id,
+          signature: response.razorpay_signature,
+        };
+
+        let { data } = await axios.post(URL, sendData);
+        if (data.status === true) {
+          alert(
+            "Congratulations, your order is placed, payment received successfully."
+          );
+          window.location.assign("/"); //send home page
+        } else {
+          alert("payment files, try again.");
+        }
+      },
+      prefill: {
+        name: "Deepakkumar",
+        email: "deepak@gmail.com",
+        contact: "9999999999",
+      },
+    };
+    var paymentObject = new window.Razorpay(options);
+    paymentObject.open();
+
+    console.log("hello");
   };
 
   let getRestaurantDetails = async () => {
-    let URL =
-      "https://polar-oasis-08997.herokuapp.com/api/get-restaurant-by-id/" +
-      params.id;
+    let URL = "http://localhost:4000/api/get-restaurant-by-id/" + params.id;
     try {
       let response = await axios.get(URL);
       let data = response.data;
@@ -62,9 +117,7 @@ function Restaurant(props) {
     }
   };
   let getMenuList = async () => {
-    let URL =
-      "https://polar-oasis-08997.herokuapp.com/api/get-menu-item?rid=" +
-      params.id;
+    let URL = "http://localhost:4000/api/get-menu-item?rid=" + params.id;
     try {
       let response = await axios.get(URL);
       let data = response.data;

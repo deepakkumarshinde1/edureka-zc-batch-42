@@ -13,7 +13,7 @@ function SearchPage() {
 
   let getFilterDetails = async (_filter) => {
     _filter = { ..._filter };
-    let URL = "https://polar-oasis-08997.herokuapp.com/api/filter";
+    let URL = "http://localhost:4000/api/filter";
 
     //filter
     if (searchParams.get("meal_type"))
@@ -30,7 +30,7 @@ function SearchPage() {
   };
 
   let getLocationList = async () => {
-    let URL = "https://polar-oasis-08997.herokuapp.com/api/get-location";
+    let URL = "http://localhost:4000/api/get-location";
     try {
       let response = await axios.get(URL);
       let data = response.data;
